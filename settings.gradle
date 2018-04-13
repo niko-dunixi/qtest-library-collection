@@ -1,2 +1,2 @@
-rootProject.name = 'qtest-library-collection'
-
+rootProject.name = 'qtest-collection'
+include 'qtest-library'
