@@ -10,9 +10,8 @@ import java.util.function.Supplier
 
 
 /**
- * Created by Paul N. Baker on 04/13/2018
+ * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
  */
-
 class LoginTokenSupplier(private val site: String, private val username: String, private val password: String) : Supplier<LoginToken> {
 
     override fun get(): LoginToken {
@@ -32,6 +31,7 @@ class LoginTokenSupplier(private val site: String, private val username: String,
         val client = OkHttpClient.Builder().build()
         val response = client.newCall(request).execute()
 
+        // Serializing to map. I want the scope to be a set of items, not just a massively long string.
         return response.body().use {
             val jacksonObjectMapper = jacksonObjectMapper()
             val body = it!!.string()
@@ -57,4 +57,7 @@ class LoginTokenSupplier(private val site: String, private val username: String,
     }
 }
 
+/**
+ * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
+ */
 data class LoginToken(val accessToken: String?, val tokenType: String?, val refreshToken: String?, val scope: Set<String>, var agent: String?)
