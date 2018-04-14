@@ -42,7 +42,7 @@ class LoginTokenSupplier(private val site: String, private val username: String,
             val tokenType = jsonMap["token_type"].asNullableString()
             val refreshToken = jsonMap["refresh_token"].asNullableString()
 
-            val scope = Regex("\\s+").split(jsonMap["scope"] ?: "").toSet()
+            val scope = Regex("\\s+").split(jsonMap["scope"].asNullableString() ?: "").toSet()
 
             val agent = jsonMap["agent"].asNullableString()
             LoginToken(accessToken, tokenType, refreshToken, scope, agent)
