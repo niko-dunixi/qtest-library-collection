@@ -2,9 +2,7 @@ package io.paulbaker.qtest
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import java.util.*
 import java.util.function.Supplier
 
@@ -60,4 +58,16 @@ class LoginTokenSupplier(private val site: String, private val username: String,
 /**
  * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
  */
-data class LoginToken(val accessToken: String?, val tokenType: String?, val refreshToken: String?, val scope: Set<String>, var agent: String?)
+data class LoginToken(
+        val accessToken: String?,
+        val tokenType: String?,
+        val refreshToken: String?,
+        val scope: Set<String>,
+        var agent: String?) : Authenticator {
+
+    override fun authenticate(route: Route?, response: Response?): Request? {
+        return response?.request()?.newBuilder()
+                ?.header("Authorization", "$tokenType $accessToken")
+                ?.build()
+    }
+}
