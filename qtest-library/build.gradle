@@ -16,9 +16,10 @@ repositories {
 }
 
 dependencies {
+    def okHttpVersion = '3.10.0'
     def jacksonVersion = '2.9.5'
 
-    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.10.0'
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jacksonVersion
