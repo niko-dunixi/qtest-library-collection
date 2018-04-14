@@ -38,22 +38,22 @@ class LoginTokenSupplier(private val site: String, private val username: String,
             val mapTypeReference = object : TypeReference<Map<String, Any>>() {}
             val jsonMap = jacksonObjectMapper.readValue<Map<String, String?>>(body, mapTypeReference)
 
-            val accessToken = asNullableString(jsonMap["access_token"])
-            val tokenType = asNullableString(jsonMap["token_type"])
-            val refreshToken = asNullableString(jsonMap["refresh_token"])
+            val accessToken = jsonMap["access_token"].asNullableString()
+            val tokenType = jsonMap["token_type"].asNullableString()
+            val refreshToken = jsonMap["refresh_token"].asNullableString()
 
             val scope = Regex("\\s+").split(jsonMap["scope"] ?: "").toSet()
 
-            val agent = asNullableString(jsonMap["agent"])
+            val agent = jsonMap["agent"].asNullableString()
             LoginToken(accessToken, tokenType, refreshToken, scope, agent)
         }
     }
 
-    private fun asNullableString(value: String?): String? {
-        if (value == null || value == "null") {
+    private fun String?.asNullableString(): String? {
+        if (this == "null") {
             return null
         }
-        return value
+        return this
     }
 }
 
