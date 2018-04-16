@@ -12,9 +12,9 @@ class ClientProducer(private val host: String, private val loginToken: LoginToke
             .authenticator(loginToken)
             .build()
 
-    fun userClient(): UserClient = UserClient(okHttpClient, host)
+    fun createUserClient(): UserClient = UserClient(okHttpClient, host)
 
-    fun projectClient(): ProjectClient = ProjectClient(okHttpClient, host)
+    fun createProjectClient(): ProjectClient = ProjectClient(okHttpClient, host)
 }
 
 class ProjectClient(private val okHttpClient: OkHttpClient, private val host: String) {
