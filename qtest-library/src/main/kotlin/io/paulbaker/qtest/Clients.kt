@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 
-class ClientProducer(private val host: String, private val loginToken: LoginToken) {
+class ClientProducer(private val host: String, loginToken: LoginToken) {
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
             .authenticator(loginToken)
@@ -16,6 +16,8 @@ class ClientProducer(private val host: String, private val loginToken: LoginToke
 
     fun createProjectClient(): ProjectClient = ProjectClient(okHttpClient, host)
 }
+
+private val objectMapper = jacksonObjectMapper()
 
 class ProjectClient(private val okHttpClient: OkHttpClient, private val host: String) {
 
@@ -31,7 +33,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
         val response = okHttpClient.newCall(request).execute()
         val listOfUserType = object : TypeReference<List<User>>() {}
         val string = response.body()!!.string()
-        return jacksonObjectMapper().readValue<List<User>>(string, listOfUserType)
+        return objectMapper.readValue<List<User>>(string, listOfUserType)
     }
 }
 
@@ -49,7 +51,7 @@ class UserClient(private val okHttpClient: OkHttpClient, private val host: Strin
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val string = response.body()!!.string()
-        return jacksonObjectMapper().readValue(string, User::class.java)
+        return objectMapper.readValue(string, User::class.java)
     }
 }
 
