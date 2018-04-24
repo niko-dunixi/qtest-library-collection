@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
+import kotlin.reflect.KClass
 
 
 class ClientProducer(private val host: String, loginToken: LoginToken) {
@@ -36,8 +36,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfUserType = object : TypeReference<List<User>>() {}
-        val string = response.body()!!.string()
-        return objectMapper.readValue<List<User>>(string, listOfUserType)
+        return responseToCollection(response, listOfUserType)
     }
 
     /**
@@ -50,8 +49,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfProjects = object : TypeReference<List<Project>>() {}
-        val string = response.body()!!.string()
-        return objectMapper.readValue<List<Project>>(string, listOfProjects)
+        return responseToCollection(response, listOfProjects)
     }
 
     /**
@@ -63,8 +61,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
                 .get()
                 .build()
         val response = okHttpClient.newCall(request).execute()
-        val string = response.body()!!.string()
-        return objectMapper.readValue<Project>(string, Project::class.java)
+        return responseToObj(response, Project::class.java)
     }
 }
 
@@ -80,13 +77,15 @@ class UserClient(private val okHttpClient: OkHttpClient, private val host: Strin
                 .get()
                 .build()
         val response = okHttpClient.newCall(request).execute()
-        val string = response.body()!!.string()
-        return objectMapper.readValue(string, User::class.java)
+        return responseToObj(response, User::class.java)
     }
 }
 
 class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: String) {
 
+    /**
+     * @see <a href="https://api.qasymphony.com/#/release/getAll">qTest API</a>
+     */
     fun releases(projectId: Long): List<Release> {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases")
@@ -94,8 +93,40 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfReleases = object : TypeReference<List<Release>>() {}
-        val string = response.body()!!.string()
-        return objectMapper.readValue(string, listOfReleases)
+        return responseToCollection(response, listOfReleases)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/release/get2">qTest API</a>
+     */
+    fun release(projectId: Long, releaseId: Long): Release {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/releases/$releaseId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, Release::class.java)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/release/create2">qTest API</a>
+     */
+    fun create(projectId: Long, name: String): Release {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId")
+                .post(RequestBody.create(MediaType.parse("application/json"), "{name:$name}"))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, Release::class.java)
     }
 }
 
+private fun <T> responseToObj(response: Response, type: Class<T>): T {
+    val string = response.body()!!.string()
+    return objectMapper.readValue(string, type)
+}
+
+private fun <T> responseToCollection(response: Response, typeReference: TypeReference<T>): T {
+    val string = response.body()!!.string()
+    return objectMapper.readValue(string, typeReference)
+}
