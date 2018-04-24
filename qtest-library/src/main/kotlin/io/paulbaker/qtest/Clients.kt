@@ -17,6 +17,8 @@ class ClientProducer(private val host: String, loginToken: LoginToken) {
     fun createUserClient(): UserClient = UserClient(okHttpClient, host)
 
     fun createProjectClient(): ProjectClient = ProjectClient(okHttpClient, host)
+
+    fun createReleaseClient(): ReleaseClient = ReleaseClient(okHttpClient, host)
 }
 
 private val objectMapper = jacksonObjectMapper()
@@ -80,6 +82,20 @@ class UserClient(private val okHttpClient: OkHttpClient, private val host: Strin
         val response = okHttpClient.newCall(request).execute()
         val string = response.body()!!.string()
         return objectMapper.readValue(string, User::class.java)
+    }
+}
+
+class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: String) {
+
+    fun releases(projectId: Long): List<Release> {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/releases")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val listOfReleases = object : TypeReference<List<Release>>() {}
+        val string = response.body()!!.string()
+        return objectMapper.readValue(string, listOfReleases)
     }
 }
 
