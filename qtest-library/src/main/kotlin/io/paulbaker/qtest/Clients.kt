@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.*
-import kotlin.reflect.KClass
 
 
 class ClientProducer(private val host: String, loginToken: LoginToken) {
@@ -36,7 +35,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfUserType = object : TypeReference<List<User>>() {}
-        return responseToCollection(response, listOfUserType)
+        return responseToObj(response, listOfUserType)
     }
 
     /**
@@ -49,7 +48,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfProjects = object : TypeReference<List<Project>>() {}
-        return responseToCollection(response, listOfProjects)
+        return responseToObj(response, listOfProjects)
     }
 
     /**
@@ -93,7 +92,7 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         val listOfReleases = object : TypeReference<List<Release>>() {}
-        return responseToCollection(response, listOfReleases)
+        return responseToObj(response, listOfReleases)
     }
 
     /**
@@ -126,7 +125,7 @@ private fun <T> responseToObj(response: Response, type: Class<T>): T {
     return objectMapper.readValue(string, type)
 }
 
-private fun <T> responseToCollection(response: Response, typeReference: TypeReference<T>): T {
+private fun <T> responseToObj(response: Response, typeReference: TypeReference<T>): T {
     val string = response.body()!!.string()
     return objectMapper.readValue(string, typeReference)
 }
