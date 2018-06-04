@@ -9,6 +9,12 @@ import okhttp3.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+const val SENDING_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.000'Z'"
+
+private val simpleDateFormat = SimpleDateFormat(SENDING_DATE_PATTERN)
+
+private fun getCurrentTimestamp() = simpleDateFormat.format(Date())
+
 class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, String>, okHttpClient: OkHttpClient) {
     constructor(qTestSubDomain: String, credentials: Pair<String, String>) : this(qTestSubDomain, credentials, OkHttpClient().newBuilder().build())
 
@@ -97,10 +103,9 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
      * @see <a href="https://api.qasymphony.com/#/project/createProject">qTest API</a>
      */
     fun create(name: String, description: String = ""): Project {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000'Z'")
         val content = jsonOf(
                 Item("name", name),
-                Item("start_date", simpleDateFormat.format(Date())),
+                Item("start_date", getCurrentTimestamp()),
                 Item("description", description)
         )
         val request = Request.Builder()
