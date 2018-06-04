@@ -93,6 +93,21 @@ data class TestCycle(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class TestRun(
+        val id: Long,
+        @JsonProperty("parent_id")
+        val parentId: Long,
+        val name: String,
+        val pid: String,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
+        @JsonProperty("created_date")
+        val createdDate: LocalDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
+        @JsonProperty("last_modified_date")
+        val lastModifiedDate: LocalDateTime
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Requirement(
         val id: Long,
         @JsonProperty("parent_id")

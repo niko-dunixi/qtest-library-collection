@@ -1,5 +1,6 @@
 package io.paulbaker.qtest
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.paulbaker.qtest.rest.Item
@@ -26,6 +27,8 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
     fun releaseClient(projectId: Long): ReleaseClient = ReleaseClient(okHttpClient, host, projectId)
 
     fun testCycleClient(projectId: Long): TestCycleClient = TestCycleClient(okHttpClient, host, projectId)
+
+    fun testRunClient(projectId: Long): TestRunClient = TestRunClient(okHttpClient, host, projectId)
 
     fun userClient(): UserClient = UserClient(okHttpClient, host)
 
@@ -265,8 +268,65 @@ class TestCycleClient(private val okHttpClient: OkHttpClient, private val host: 
         return response.isSuccessful
     }
 }
-//class RequirementClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
-//}
+
+class TestRunClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-run/get3">qTest API</a>
+     */
+    fun fromId(testRunId: Long): TestRun {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-runs/$testRunId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestRun::class.java)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-run/getOf">qTest API</a>
+     */
+    fun testRuns(page: Long = 0, pageSize: Long = 20, parentType: TestCycleParent = TestCycleParent.ROOT, parentId: Long = 0): List<TestRun> {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-runs?parentId=$parentId&parentType=${parentType.value}&page=$page&pageSize=$pageSize")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val listOfTestRuns = object : TypeReference<List<TestRun>>() {}
+        return responseToObj(response, listOfTestRuns)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-run/create4">qTest API</a>
+     */
+    fun create(name: String, testCaseId: Long, parentType: TestRunParent = TestRunParent.ROOT, parentId: Long = 0): TestRun {
+        val obj = object {
+            val name = name
+            @JsonProperty("test_case")
+            val testCase = hashMapOf(Item("id", testCaseId))
+        }
+        val content = jsonOf(obj)
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-runs?parentType=${parentType.value}&parentId=$parentId")
+                .post(RequestBody.create(MediaType.parse("application/json"), content))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestRun::class.java)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-cycle/deleteCycle">qTest API</a>
+     */
+    fun delete(testRunId: Long): Boolean {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-runs/$testRunId")
+                .delete()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return response.isSuccessful
+    }
+
+}
 
 
 private fun <T> responseToObj(response: Response, type: Class<T>): T {
