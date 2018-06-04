@@ -32,7 +32,6 @@ class ReleaseTests : BehaviorSpec({
         }
         When("I create a new release") {
             val releaseName = randomUUID()
-//            val releaseName = "${System.currentTimeMillis()}"
             val createdRelease = releaseClient.create(releaseName)
             Then("I can delete the release I created") {
                 releaseClient.delete(createdRelease.id) shouldBe true
