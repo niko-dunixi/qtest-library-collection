@@ -23,6 +23,17 @@ class TestRunTests {
     }
 
     @Test
+    fun testDeleteTestRun() {
+        val projectId = getTestProject().id
+        val testRunClient = testableQTestClient.testRunClient(projectId)
+        val name = "${randomUUID()}-testrun-deleteme"
+        val testRun = testRunClient.create(name, 23818835)
+        assertThat(testRun.id, greaterThan(0L))
+        assertThat(testRun.name, `is`(name))
+        testRunClient.delete(testRun.id)
+    }
+
+    @Test
     fun testCreateTestRunNestedInTestCycle() {
         val projectId = getTestProject().id
         val testCycleClient = testableQTestClient.testCycleClient(projectId)
