@@ -2,6 +2,7 @@ package io.paulbaker.qtest
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.paulbaker.qtest.rest.itemsAsJSON
 import io.paulbaker.qtest.rest.objectMapper
 import okhttp3.*
 import java.util.*
@@ -149,13 +150,24 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
      * @see <a href="https://api.qasymphony.com/#/release/create2">qTest API</a>
      */
     fun create(name: String): Release {
+        val content = itemsAsJSON(Pair("name", name))
         val request = Request.Builder()
-                .url("$host/api/v3/projects/$projectId")
-                .post(RequestBody.create(MediaType.parse("application/json"), "{name:$name}"))
+                .url("$host/api/v3/projects/$projectId/releases")
+                .post(RequestBody.create(MediaType.parse("application/json"), content))
                 .build()
         val response = okHttpClient.newCall(request).execute()
         return responseToObj(response, Release::class.java)
     }
+
+    fun delete(releaseId: Long): Boolean {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/releases/$releaseId")
+                .delete()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return response.isSuccessful
+    }
+
 }
 
 private fun <T> responseToObj(response: Response, type: Class<T>): T {

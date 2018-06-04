@@ -12,3 +12,11 @@ val objectMapper: ObjectMapper = jacksonObjectMapper().registerModules(
         Jdk8Module(),
         JavaTimeModule()
 )
+
+fun itemsAsJSON(vararg items: Pair<String, Any>): String {
+    val mapOfItems = HashMap<String, Any>()
+    mapOfItems.putAll(items)
+    return itemsAsJSON(mapOfItems)
+}
+
+fun itemsAsJSON(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
