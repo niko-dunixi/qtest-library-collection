@@ -7,7 +7,7 @@ import java.net.URL
 import java.time.LocalDateTime
 
 // Reference this for @JsonFormat patterns https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
-const val PATTERN = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
+const val DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class User(
@@ -29,10 +29,10 @@ data class Project(
         val id: Long,
         val name: String,
         val description: String,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("start_date")
         val startDate: LocalDateTime?,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("end_date")
         val endDate: LocalDateTime?,
         @JsonProperty("automation")
@@ -45,10 +45,10 @@ data class Release(
         val name: String,
         val description: String,
         val pid: String,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("created_date")
         val createdDate: LocalDateTime,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("last_modified_date")
         val lastModifiedDate: LocalDateTime,
         @JsonProperty("web_url")
@@ -63,10 +63,10 @@ data class Requirement(
         val parentId: Long,
         val name: String,
         val pid: String,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("created_date")
         val createdDate: LocalDateTime,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = PATTERN)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("last_modified_date")
         val lastModifiedDate: LocalDateTime
 )
