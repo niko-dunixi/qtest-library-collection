@@ -15,13 +15,15 @@
 
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
+        mavenLocal()
     }
 }
 
+//https://discuss.gradle.org/t/how-do-i-run-tests-in-all-subprojects-before-uploading-any/6935
 subprojects {
     version = '1.0-SNAPSHOT'
-
 //    apply plugin: java
 //    apply plugin: id 'io.franzbecker.gradle-lombok' version '1.11'
 }

@@ -17,7 +17,7 @@ object ProjectConfig : AbstractProjectConfig() {
 
     private var started: Long = 0
 
-    override fun parallelism(): Int = 4
+//    override fun parallelism(): Int = 4
 
     override fun beforeAll() {
         started = System.currentTimeMillis()
