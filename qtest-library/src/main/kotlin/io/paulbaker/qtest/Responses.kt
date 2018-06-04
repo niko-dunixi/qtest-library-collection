@@ -3,11 +3,32 @@ package io.paulbaker.qtest
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import okhttp3.Authenticator
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Route
 import java.net.URL
 import java.time.LocalDateTime
 
 // Reference this for @JsonFormat patterns https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
 const val DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
+
+/**
+ * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
+ */
+data class LoginTokenAuthenticator(
+        val accessToken: String?,
+        val tokenType: String?,
+        val refreshToken: String?,
+        val scope: Set<String>,
+        var agent: String?) : Authenticator {
+
+        override fun authenticate(route: Route?, response: Response?): Request? {
+                return response?.request()?.newBuilder()
+                        ?.header("Authorization", "$tokenType $accessToken")
+                        ?.build()
+        }
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class User(

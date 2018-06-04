@@ -1,4 +1,4 @@
-package io.paulbaker.qtest
+package io.paulbaker.qtest.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module

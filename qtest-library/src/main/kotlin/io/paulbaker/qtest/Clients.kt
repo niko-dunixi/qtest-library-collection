@@ -1,23 +1,64 @@
 package io.paulbaker.qtest
 
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.paulbaker.qtest.rest.objectMapper
 import okhttp3.*
+import java.util.*
 
+class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, String>, okHttpClient: OkHttpClient) {
+    constructor(qTestSubDomain: String, credentials: Pair<String, String>) : this(qTestSubDomain, credentials, OkHttpClient().newBuilder().build())
 
-class ClientProducer(private val host: String, loginToken: LoginToken) {
+    private val host: String = "https://$qTestSubDomain.qtestnet.com"
+    private val okHttpClient: OkHttpClient = authorizeOkHttpClient(host, okHttpClient, credentials)
 
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .authenticator(loginToken)
-            .build()
+    fun projectClient(): ProjectClient = ProjectClient(okHttpClient, host)
 
-    fun createUserClient(): UserClient = UserClient(okHttpClient, host)
+    fun releaseClient(projectId: Long): ReleaseClient = ReleaseClient(okHttpClient, host, projectId)
 
-    fun createProjectClient(): ProjectClient = ProjectClient(okHttpClient, host)
+    fun userClient(): UserClient = UserClient(okHttpClient, host)
 
-    fun createReleaseClient(): ReleaseClient = ReleaseClient(okHttpClient, host)
+    /**
+     * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
+     */
+    private fun authorizeOkHttpClient(host: String, okHttpClient: OkHttpClient, credentials: Pair<String, String>): OkHttpClient {
+        val builder = Request.Builder()
+        builder.url("$host/oauth/token")
+        builder.post(
+                FormBody.Builder()
+                        .add("grant_type", "password")
+                        .add("username", credentials.first)
+                        .add("password", credentials.second)
+                        .build()
+        )
+        val encoder = Base64.getEncoder()
+        builder.addHeader("Authorization", "Basic " + encoder.encodeToString(("$qTestSubDomain:").toByteArray()))
+        val request = builder.build()
+
+        val response = okHttpClient.newCall(request).execute()
+        response.body().use {
+            val jacksonObjectMapper = jacksonObjectMapper()
+            val body = it!!.string()
+            val mapTypeReference = object : TypeReference<Map<String, Any>>() {}
+            val jsonMap = jacksonObjectMapper.readValue<Map<String, String?>>(body, mapTypeReference)
+
+            val accessToken = jsonMap["access_token"].asNullableString()
+            val tokenType = jsonMap["token_type"].asNullableString()
+            val refreshToken = jsonMap["refresh_token"].asNullableString()
+            val scope = Regex("\\s+").split(jsonMap["scope"].asNullableString() ?: "").toSet()
+            val agent = jsonMap["agent"].asNullableString()
+
+            val loginTokenAuthenticator = LoginTokenAuthenticator(accessToken, tokenType, refreshToken, scope, agent)
+            return okHttpClient.newBuilder().authenticator(loginTokenAuthenticator).build()
+        }
+    }
+
+    private fun String?.asNullableString(): String? {
+        if (this == "null") {
+            return null
+        }
+        return this
+    }
 }
 
 class ProjectClient(private val okHttpClient: OkHttpClient, private val host: String) {
@@ -77,12 +118,12 @@ class UserClient(private val okHttpClient: OkHttpClient, private val host: Strin
     }
 }
 
-class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: String) {
+class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
     /**
      * @see <a href="https://api.qasymphony.com/#/release/getAll">qTest API</a>
      */
-    fun releases(projectId: Long): List<Release> {
+    fun releases(): List<Release> {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases")
                 .get()
@@ -95,7 +136,7 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
     /**
      * @see <a href="https://api.qasymphony.com/#/release/get2">qTest API</a>
      */
-    fun release(projectId: Long, releaseId: Long): Release {
+    fun release(releaseId: Long): Release {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases/$releaseId")
                 .get()
@@ -107,7 +148,7 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
     /**
      * @see <a href="https://api.qasymphony.com/#/release/create2">qTest API</a>
      */
-    fun create(projectId: Long, name: String): Release {
+    fun create(name: String): Release {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId")
                 .post(RequestBody.create(MediaType.parse("application/json"), "{name:$name}"))
