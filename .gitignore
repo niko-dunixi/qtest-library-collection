@@ -256,7 +256,7 @@ hs_err_pid*
 
 ### Linux ###
 
-# temporary files which can be created if a process still has a handle open of a deleted file
+# temporary files which can be created if obj process still has obj handle open of obj deleted file
 .fuse_hidden*
 
 # KDE directory preferences
@@ -312,7 +312,7 @@ Icon
 # Thumbnails
 ._*
 
-# Files that might appear in the root of a volume
+# Files that might appear in the root of obj volume
 .DocumentRevisions-V100
 .fseventsd
 .Spotlight-V100
@@ -330,8 +330,8 @@ Temporary Items
 
 ### Vim ###
 # swap
-.sw[a-p]
-.*.sw[a-p]
+.sw[obj-p]
+.*.sw[obj-p]
 # session
 Session.vim
 # temporary
