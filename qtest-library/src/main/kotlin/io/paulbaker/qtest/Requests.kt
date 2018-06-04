@@ -1,12 +1,13 @@
 package io.paulbaker.qtest
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.databind.util.Converter
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 enum class TestCycleParent(val value: String) {
@@ -20,13 +21,14 @@ enum class TestRunParent(val value: String) {
 data class TestResult(
         val status: String,
         @JsonProperty("exe_start_date")
-        val startTime: LocalDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = SENDING_DATE_PATTERN)
+        val startTime: ZonedDateTime,
         @JsonProperty("exe_end_date")
-        val endTime: LocalDateTime,
-        @JsonIgnore
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = SENDING_DATE_PATTERN)
+        val endTime: ZonedDateTime,
         val note: String = "",
         @JsonIgnore
-        val noteIsHtml: Boolean = true,
+        val noteIsHtml: Boolean = false,
         val attachments: List<TestResultAttachment> = emptyList()
 )
 
@@ -34,49 +36,50 @@ data class TestResult(
  * Abstract parent class for attachments that qTest can consume
  */
 abstract class TestResultAttachment(
+        @JsonProperty("name")
         val name: String,
         @JsonProperty("data")
         @JsonSerialize(converter = RawBytesToBase64StringConverter::class)
-        val rawByteData: ByteArray
+        val data: ByteArray
 ) {
 
     @JsonProperty("content_type")
     abstract fun contentType(): String
 }
 
-class TextAttachment(name: String, text: String) : TestResultAttachment(name, text.toByteArray()) {
+class TextAttachment(filename: String, text: String) : TestResultAttachment(filename, text.toByteArray()) {
     override fun contentType(): String = "text/plain"
 }
 
-class WordDocumentAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class WordDocumentAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "application/msword"
 }
 
-class WordDocxAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class WordDocxAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 }
 
-class PNGAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class PNGAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "image/png"
 }
 
-class JPGAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class JPGAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "image/jpeg"
 }
 
-class GIFAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class GIFAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "image/gif"
 }
 
-class PDFAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class PDFAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "application/pdf"
 }
 
-class HTMLAttachment(name: String, htmlString: String) : TestResultAttachment(name, htmlString.toByteArray()) {
+class HTMLAttachment(filename: String, html: String) : TestResultAttachment(filename, html.toByteArray()) {
     override fun contentType(): String = "text/html"
 }
 
-class ZIPAttachment(name: String, rawByteData: ByteArray) : TestResultAttachment(name, rawByteData) {
+class ZIPAttachment(filename: String, rawByteData: ByteArray) : TestResultAttachment(filename, rawByteData) {
     override fun contentType(): String = "application/zip"
 }
 

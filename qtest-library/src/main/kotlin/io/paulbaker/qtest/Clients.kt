@@ -16,6 +16,8 @@ private val simpleDateFormat = SimpleDateFormat(SENDING_DATE_PATTERN)
 
 private fun getCurrentTimestamp() = simpleDateFormat.format(Date())
 
+private val mapTypeReference = object : TypeReference<Map<String, Any>>() {}
+
 class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, String>, okHttpClient: OkHttpClient) {
     constructor(qTestSubDomain: String, credentials: Pair<String, String>) : this(qTestSubDomain, credentials, OkHttpClient().newBuilder().build())
 
@@ -326,15 +328,32 @@ class TestRunClient(private val okHttpClient: OkHttpClient, private val host: St
         return response.isSuccessful
     }
 
+    fun submitTestResults(testRunId: Long, testResult: TestResult): Map<String, Any> {
+        val content = jsonOf(testResult)
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-runs/$testRunId/auto-test-logs?encodeNote=${testResult.noteIsHtml}")
+                .post(RequestBody.create(MediaType.parse("application/json"), content))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, mapTypeReference)
+    }
 }
 
 
 private fun <T> responseToObj(response: Response, type: Class<T>): T {
     val string = response.body()!!.string()
+    return responseToObj(string, type)
+}
+
+private fun <T> responseToObj(string: String, type: Class<T>): T {
     return objectMapper.readValue(string, type)
 }
 
 private fun <T> responseToObj(response: Response, typeReference: TypeReference<T>): T {
     val string = response.body()!!.string()
+    return responseToObj(string, typeReference)
+}
+
+private fun <T> responseToObj(string: String, typeReference: TypeReference<T>): T {
     return objectMapper.readValue(string, typeReference)
 }
