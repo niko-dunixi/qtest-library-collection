@@ -41,7 +41,7 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
         response.body().use {
             val jacksonObjectMapper = jacksonObjectMapper()
             val body = it!!.string()
-            val mapTypeReference = object : TypeReference<Map<String, Any>>() {}
+            val mapTypeReference = object : TypeReference<Map<String, String?>>() {}
             val jsonMap = jacksonObjectMapper.readValue<Map<String, String?>>(body, mapTypeReference)
 
             val accessToken = jsonMap["access_token"].asNullableString()
@@ -68,14 +68,13 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
     /**
      * @see <a href="https://api.qasymphony.com/#/project/getUsers">qTest API</a>
      */
-    fun users(projectId: Long): List<User> {
+    fun fromId(id: Long): Project {
         val request = Request.Builder()
-                .url("$host/api/v3/projects/$projectId/users")
+                .url("$host/api/v3/projects/$id")
                 .get()
                 .build()
         val response = okHttpClient.newCall(request).execute()
-        val listOfUserType = object : TypeReference<List<User>>() {}
-        return responseToObj(response, listOfUserType)
+        return responseToObj(response, Project::class.java)
     }
 
     /**
@@ -94,13 +93,14 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
     /**
      * @see <a href="https://api.qasymphony.com/#/project/getProject">qTest API</a>
      */
-    fun fromId(id: Long): Project {
+    fun users(projectId: Long): List<User> {
         val request = Request.Builder()
-                .url("$host/api/v3/projects/$id")
+                .url("$host/api/v3/projects/$projectId/users")
                 .get()
                 .build()
         val response = okHttpClient.newCall(request).execute()
-        return responseToObj(response, Project::class.java)
+        val listOfUserType = object : TypeReference<List<User>>() {}
+        return responseToObj(response, listOfUserType)
     }
 }
 
@@ -123,6 +123,18 @@ class UserClient(private val okHttpClient: OkHttpClient, private val host: Strin
 class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
     /**
+     * @see <a href="https://api.qasymphony.com/#/release/get2">qTest API</a>
+     */
+    fun fromId(releaseId: Long): Release {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/releases/$releaseId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, Release::class.java)
+    }
+
+    /**
      * @see <a href="https://api.qasymphony.com/#/release/getAll">qTest API</a>
      */
     fun releases(): List<Release> {
@@ -133,18 +145,6 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
         val response = okHttpClient.newCall(request).execute()
         val listOfReleases = object : TypeReference<List<Release>>() {}
         return responseToObj(response, listOfReleases)
-    }
-
-    /**
-     * @see <a href="https://api.qasymphony.com/#/release/get2">qTest API</a>
-     */
-    fun release(releaseId: Long): Release {
-        val request = Request.Builder()
-                .url("$host/api/v3/projects/$projectId/releases/$releaseId")
-                .get()
-                .build()
-        val response = okHttpClient.newCall(request).execute()
-        return responseToObj(response, Release::class.java)
     }
 
     /**
@@ -173,6 +173,58 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
     }
 }
 
+class TestCycleClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-cycle/getTestCycle">qTest API</a>
+     */
+    fun fromId(testCycleId: Long): TestCycle {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cycles/$testCycleId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestCycle::class.java)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-cycle/getTestCycles">qTest API</a>
+     */
+    fun testCycles(): List<TestCycle> {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cycles")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val listOfTestCycles = object : TypeReference<List<TestCycle>>() {}
+        return responseToObj(response, listOfTestCycles)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-cycle/createCycle">qTest API</a>
+     */
+    fun create(name: String, parentType: TestCycleParent = TestCycleParent.ROOT, parentId: Long = 0): TestCycle {
+        val content = jsonOf(Item("name", name))
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cycles?parentType=${parentType.value}&parentId=$parentId")
+                .post(RequestBody.create(MediaType.parse("application/json"), content))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestCycle::class.java)
+    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/test-cycle/deleteCycle">qTest API</a>
+     */
+    fun delete(testCycleId: Long): Boolean {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cycles/$testCycleId")
+                .delete()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return response.isSuccessful
+    }
+}
 //class RequirementClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 //}
 

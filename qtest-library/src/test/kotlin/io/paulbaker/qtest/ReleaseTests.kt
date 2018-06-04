@@ -25,7 +25,7 @@ class ReleaseTests : BehaviorSpec({
             }
             Then("It should be equivalent to requesting each individually") {
                 releases.forEach({
-                    val releaseFromId = releaseClient.release(it.id)
+                    val releaseFromId = releaseClient.fromId(it.id)
                     it shouldBe releaseFromId
                 })
             }

@@ -23,11 +23,11 @@ data class LoginTokenAuthenticator(
         val scope: Set<String>,
         var agent: String?) : Authenticator {
 
-        override fun authenticate(route: Route?, response: Response?): Request? {
-                return response?.request()?.newBuilder()
-                        ?.header("Authorization", "$tokenType $accessToken")
-                        ?.build()
-        }
+    override fun authenticate(route: Route?, response: Response?): Request? {
+        return response?.request()?.newBuilder()
+                ?.header("Authorization", "$tokenType $accessToken")
+                ?.build()
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -76,6 +76,21 @@ data class Release(
         val url: URL
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TestCycle(
+        val id: Long,
+        val name: String,
+        val description: String,
+        val pid: String,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+        @JsonProperty("created_date")
+        val createdDate: LocalDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+        @JsonProperty("last_modified_date")
+        val lastModifiedDate: LocalDateTime,
+        @JsonProperty("web_url")
+        val url: URL
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Requirement(
