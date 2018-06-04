@@ -19,7 +19,7 @@ class TestCycleTests {
     fun testCreateRootTestCycles() {
         val project = getTestProject()
         val testCycleClient = testableQTestClient.testCycleClient(project.id)
-        val rootName = "${randomUUID()}-root-empty"
+        val rootName = "${randomUUID()}-root-tc-empty"
         val rootTestCycle = testCycleClient.create(rootName)
         assertThat(rootTestCycle.id, greaterThan(0L))
         assertThat(rootTestCycle.name, `is`(rootName))
@@ -29,17 +29,29 @@ class TestCycleTests {
     fun testCreateNestedTestCycles() {
         val project = getTestProject()
         val testCycleClient = testableQTestClient.testCycleClient(project.id)
-        val rootName = "${randomUUID()}-root-with-nested"
+        val rootName = "${randomUUID()}-root-tc-with-nested-tc"
         val rootTestCycle = testCycleClient.create(rootName)
         assertThat(rootTestCycle.id, greaterThan(0L))
         assertThat(rootTestCycle.name, `is`(rootName))
 
-        val nestedName = "${randomUUID()}-tc-nested"
+        val nestedName = "${randomUUID()}-tc-nested-under-tc"
         val nestedTestCycle = testCycleClient.create(nestedName, TestCycleParent.TEST_CYCLE, rootTestCycle.id)
         assertThat(nestedTestCycle.id, greaterThan(0L))
         assertThat(nestedTestCycle.name, `is`(nestedName))
 
         assertThat(rootTestCycle, `is`(not(nestedTestCycle)))
+    }
+
+    @Test
+    fun testCreateNestedUnderRelease() {
+        val project = getTestProject()
+        val releaseClient = testableQTestClient.releaseClient(project.id)
+        val rootName = "${randomUUID()}-root-release-with-nested-tc"
+        val release = releaseClient.create(rootName)
+        val testCycleClient = testableQTestClient.testCycleClient(project.id)
+        val nestedName = "${randomUUID()}-tc-nested-under-release"
+        val testCycle = testCycleClient.create(nestedName, TestCycleParent.RELEASE, release.id)
+        assertThat(testCycle.name, `is`(nestedName))
     }
 
     @Test
