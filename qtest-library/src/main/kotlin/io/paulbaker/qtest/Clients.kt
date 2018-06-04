@@ -6,6 +6,7 @@ import io.paulbaker.qtest.rest.Item
 import io.paulbaker.qtest.rest.jsonOf
 import io.paulbaker.qtest.rest.objectMapper
 import okhttp3.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, String>, okHttpClient: OkHttpClient) {
@@ -93,7 +94,39 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
     }
 
     /**
-     * @see <a href="https://api.qasymphony.com/#/project/getProject">qTest API</a>
+     * @see <a href="https://api.qasymphony.com/#/project/createProject">qTest API</a>
+     */
+    fun create(name: String, description: String = ""): Project {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000'Z'")
+        val content = jsonOf(
+                Item("name", name),
+                Item("start_date", simpleDateFormat.format(Date())),
+                Item("description", description)
+        )
+        val request = Request.Builder()
+                .url("$host/api/v3/projects")
+                .post(RequestBody.create(MediaType.parse("application/json"), content))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, Project::class.java)
+    }
+
+//    /**
+//     * The API doesn't have this endpoint. We'll need to spoof it the way the UI does.
+//     */
+//    fun delete(projectId: Long): Boolean {
+//        val request = Request.Builder()
+//                .url("$host/admin/proj/delete-project")
+//                .post(FormBody.Builder()
+//                        .add("id", "$projectId")
+//                        .build())
+//                .build()
+//        val response = okHttpClient.newCall(request).execute()
+//        return response.isSuccessful
+//    }
+
+    /**
+     * @see <a href="https://api.qasymphony.com/#/project/getUsers">qTest API</a>
      */
     fun users(projectId: Long): List<User> {
         val request = Request.Builder()

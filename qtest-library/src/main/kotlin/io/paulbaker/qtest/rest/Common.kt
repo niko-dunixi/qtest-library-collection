@@ -22,3 +22,5 @@ fun jsonOf(vararg items: Item): String {
 }
 
 fun jsonOf(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
+
+fun jsonOf(item: Any): String = objectMapper.writeValueAsString(item)

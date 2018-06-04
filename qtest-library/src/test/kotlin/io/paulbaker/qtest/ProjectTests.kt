@@ -1,34 +1,44 @@
 package io.paulbaker.qtest
 
-import io.kotlintest.inspectors.forAll
-import io.kotlintest.matchers.collections.shouldNotBeEmpty
-import io.kotlintest.matchers.gt
-import io.kotlintest.matchers.string.shouldNotBeBlank
 import io.kotlintest.provided.testableQTestClient
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.specs.BehaviorSpec
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.collection.IsEmptyCollection.empty
+import org.hamcrest.text.IsEmptyString.emptyString
+import org.junit.jupiter.api.Test
 
-class ProjectTests : BehaviorSpec({
-    Given("Valid user credentials") {
-        val qTestClient = testableQTestClient()
-        val projectClient = qTestClient.projectClient()
+class ProjectTests {
+
+    private val testableQTestClient = testableQTestClient()
+
+    @Test
+    fun testGetAll() {
+        val projectClient = testableQTestClient.projectClient()
         val projects = projectClient.projects()
-        When("I request the projects") {
-            Then("I get a list of all projects") {
-                projects.shouldNotBeEmpty()
-                projects.forAll {
-                    it shouldNotBe null
-                    it.id shouldBe gt(0L)
-                    it.name.shouldNotBeBlank()
-                }
-            }
-            Then("It should be equivalent to requesting each individually") {
-                projects.forAll {
-                    val projectFromId = projectClient.fromId(it.id)
-                    it shouldBe projectFromId
-                }
-            }
-        }
+        assertThat(projects, not(empty()))
+        projects.forEach({ project ->
+            assertThat(project.id, greaterThan(0L))
+            assertThat(project.name, not(emptyString()))
+        })
     }
-})
+
+    @Test
+    fun testGetAllIndividually() {
+        val projectClient = testableQTestClient.projectClient()
+        val projects = projectClient.projects()
+        assertThat(projects, not(empty()))
+        projects.forEach({ project ->
+            val projectFromId = projectClient.fromId(project.id)
+            assertThat(project, `is`(projectFromId))
+        })
+    }
+
+//    @Test
+//    fun testCreateSingleProject() {
+//        val projectClient = testableQTestClient.projectClient()
+//        val project = projectClient.create("paulbaker-unit-test-${System.currentTimeMillis()}")
+//        assert(projectClient.delete(project.id), { "Couldn't delete project" })
+//    }
+}

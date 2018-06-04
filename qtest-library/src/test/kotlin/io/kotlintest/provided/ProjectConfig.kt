@@ -1,6 +1,7 @@
 package io.kotlintest.provided
 
-import io.kotlintest.AbstractProjectConfig
+//import io.kotlintest.AbstractProjectConfig
+import io.paulbaker.qtest.Project
 import io.paulbaker.qtest.QTestClient
 
 val QTestSubDomain: String = System.getenv("QTEST_SUBDOMAIN")
@@ -12,19 +13,37 @@ fun testableQTestClient(): QTestClient {
 
 fun randomUUID(): String = java.util.UUID.randomUUID().toString()
 
-@Suppress("unused")
-object ProjectConfig : AbstractProjectConfig() {
+/**
+ * We can't delete projects, thus we cannot use an ephemeral test-project.
+ * Let's just re-use the same dedicated mock project every time.
+ */
+fun getTestProject(): Project = createOrFindProject("mock-automation-project")
 
-    private var started: Long = 0
-
-//    override fun parallelism(): Int = 4
-
-    override fun beforeAll() {
-        started = System.currentTimeMillis()
+/**
+ * If the project doesn't exist by name, create it. Otherwise return it.
+ */
+fun createOrFindProject(name: String): Project {
+    val projectClient = testableQTestClient().projectClient()
+    val namedProject = projectClient.projects().firstOrNull { it.name == name }
+    if (namedProject != null) {
+        return namedProject
     }
-
-    override fun afterAll() {
-        val time = System.currentTimeMillis() - started
-        println("overall time [ms]: $time")
-    }
+    return projectClient.create(name)
 }
+
+//@Suppress("unused")
+//object ProjectConfig : AbstractProjectConfig() {
+//
+//    private var started: Long = 0
+//
+//    override fun parallelism(): Int = 4
+//
+//    override fun beforeAll() {
+//        started = System.currentTimeMillis()
+//    }
+//
+//    override fun afterAll() {
+//        val time = System.currentTimeMillis() - started
+//        println("overall time [ms]: $time")
+//    }
+//}

@@ -1,30 +1,23 @@
 package io.paulbaker.qtest
 
-import io.kotlintest.matchers.gt
+import io.kotlintest.provided.getTestProject
 import io.kotlintest.provided.randomUUID
 import io.kotlintest.provided.testableQTestClient
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.specs.BehaviorSpec
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.notNullValue
+import org.junit.jupiter.api.Test
 
-class TestCycleTests : BehaviorSpec({
-    Given("I am in a project") {
-        val testableQTestClient = testableQTestClient()
-        val projects = testableQTestClient.projectClient().projects()
-        val project = projects.first { it.id == 49099L }
+class TestCycleTests {
+
+    private val testableQTestClient = testableQTestClient()
+
+    @Test
+    fun testCreate() {
+        val project = getTestProject()
         val testCycleClient = testableQTestClient.testCycleClient(project.id)
-        When("I create a root level test cycle") {
-            val testCycle = testCycleClient.create(randomUUID())
-            Then("The creation succeeds") {
-                testCycle shouldNotBe null
-                testCycle.id shouldBe gt(0L)
-            }
-//            Then("I can delete the test cycle") {
-//                testCycleClient.delete(testCycle.id) shouldBe true
-//            }
-//            Then("I can't delete the test cycle again") {
-//                testCycleClient.delete(testCycle.id) shouldBe false
-//            }
-        }
+        val createdTestCycle = testCycleClient.create(randomUUID())
+        assertThat(createdTestCycle, notNullValue())
+        assert(testCycleClient.delete(createdTestCycle.id), { "Couldn't delete the test-cycle: ${createdTestCycle.name} - ${createdTestCycle.id}" })
+        assert(!testCycleClient.delete(createdTestCycle.id), { "We shouldn't be able to delete the test-cycle twice: ${createdTestCycle.name} - ${createdTestCycle.id}" })
     }
-})
+}
