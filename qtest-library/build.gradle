@@ -1,5 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.2.41'
+    ext.junitVersion = '1.2.0'
+    ext.jupiterVersion = '5.2.0'
 
     repositories {
         mavenCentral()
@@ -17,6 +19,14 @@ repositories {
     mavenCentral()
 }
 
+test {
+    // We must enable JUnit
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 dependencies {
     def okHttpVersion = '3.10.0'
     def jacksonVersion = '2.9.5'
@@ -29,6 +39,13 @@ dependencies {
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jacksonVersion
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    // Testing
+    testCompile "org.junit.platform:junit-platform-engine:$junitVersion"
+//    testCompile "org.hamcrest:java-hamcrest:2.0.0.0"
+//    testCompile 'com.github.npathai:hamcrest-optional:2.0.0'
+    testCompile("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testCompile 'io.kotlintest:kotlintest-runner-junit5:3.1.6'
 }
 
 compileKotlin {

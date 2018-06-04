@@ -20,9 +20,6 @@ class ClientProducer(private val host: String, loginToken: LoginToken) {
     fun createReleaseClient(): ReleaseClient = ReleaseClient(okHttpClient, host)
 }
 
-private val objectMapper = jacksonObjectMapper()
-        .registerModules(Jdk8Module(), JavaTimeModule())
-
 class ProjectClient(private val okHttpClient: OkHttpClient, private val host: String) {
 
     /**
