@@ -23,7 +23,7 @@ class ProjectTests : BehaviorSpec({
                     it.name.shouldNotBeBlank()
                 }
             }
-            Then("t should be equivalent to requesting each individually") {
+            Then("It should be equivalent to requesting each individually") {
                 projects.forAll {
                     val projectFromId = projectClient.fromId(it.id)
                     it shouldBe projectFromId

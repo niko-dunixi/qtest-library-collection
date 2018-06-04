@@ -159,6 +159,9 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
         return responseToObj(response, Release::class.java)
     }
 
+    /**
+     * @see <a href="https://api.qasymphony.com/#/release/delete2">qTest API</a>
+     */
     fun delete(releaseId: Long): Boolean {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases/$releaseId")
@@ -167,8 +170,11 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
         val response = okHttpClient.newCall(request).execute()
         return response.isSuccessful
     }
-
 }
+
+//class RequirementClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+//}
+
 
 private fun <T> responseToObj(response: Response, type: Class<T>): T {
     val string = response.body()!!.string()

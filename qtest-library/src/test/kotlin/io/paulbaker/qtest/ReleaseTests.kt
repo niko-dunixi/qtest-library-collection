@@ -2,6 +2,7 @@ package io.paulbaker.qtest
 
 import io.kotlintest.matchers.collections.shouldNotBeEmpty
 import io.kotlintest.matchers.string.shouldNotBeEmpty
+import io.kotlintest.provided.randomUUID
 import io.kotlintest.provided.testableQTestClient
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -30,7 +31,7 @@ class ReleaseTests : BehaviorSpec({
             }
         }
         When("I create a new release") {
-            val releaseName = java.util.UUID.randomUUID().toString()
+            val releaseName = randomUUID()
 //            val releaseName = "${System.currentTimeMillis()}"
             val createdRelease = releaseClient.create(releaseName)
             Then("I can delete the release I created") {
