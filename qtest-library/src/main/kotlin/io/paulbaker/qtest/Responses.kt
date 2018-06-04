@@ -80,7 +80,7 @@ data class Release(
 data class TestCycle(
         val id: Long,
         val name: String,
-        val description: String,
+//        val description: String,
         val pid: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
         @JsonProperty("created_date")

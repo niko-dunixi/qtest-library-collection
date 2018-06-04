@@ -18,6 +18,8 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
 
     fun releaseClient(projectId: Long): ReleaseClient = ReleaseClient(okHttpClient, host, projectId)
 
+    fun testCycleClient(projectId: Long): TestCycleClient = TestCycleClient(okHttpClient, host, projectId)
+
     fun userClient(): UserClient = UserClient(okHttpClient, host)
 
     /**
