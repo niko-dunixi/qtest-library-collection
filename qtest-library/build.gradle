@@ -59,7 +59,3 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
-wrapper {
-    gradleVersion = '4.8'
-    distributionType = Wrapper.DistributionType.ALL
-}
