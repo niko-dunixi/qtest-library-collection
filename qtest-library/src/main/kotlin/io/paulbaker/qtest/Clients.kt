@@ -3,9 +3,7 @@ package io.paulbaker.qtest
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.paulbaker.qtest.rest.Item
-import io.paulbaker.qtest.rest.jsonOf
-import io.paulbaker.qtest.rest.objectMapper
+import io.paulbaker.qtest.rest.*
 import okhttp3.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -15,8 +13,6 @@ const val SENDING_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.000'Z'"
 private val simpleDateFormat = SimpleDateFormat(SENDING_DATE_PATTERN)
 
 private fun getCurrentTimestamp() = simpleDateFormat.format(Date())
-
-private val mapTypeReference = object : TypeReference<Map<String, Any>>() {}
 
 class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, String>, okHttpClient: OkHttpClient) {
     constructor(qTestSubDomain: String, credentials: Pair<String, String>) : this(qTestSubDomain, credentials, OkHttpClient().newBuilder().build())
@@ -55,8 +51,7 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
         response.body().use {
             val jacksonObjectMapper = jacksonObjectMapper()
             val body = it!!.string()
-            val mapTypeReference = object : TypeReference<Map<String, String?>>() {}
-            val jsonMap = jacksonObjectMapper.readValue<Map<String, String?>>(body, mapTypeReference)
+            val jsonMap = jacksonObjectMapper.readValue<Map<String, String?>>(body, nullableStringMapTypeReference)
 
             val accessToken = jsonMap["access_token"].asNullableString()
             val tokenType = jsonMap["token_type"].asNullableString()
@@ -335,7 +330,7 @@ class TestRunClient(private val okHttpClient: OkHttpClient, private val host: St
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
                 .build()
         val response = okHttpClient.newCall(request).execute()
-        return responseToObj(response, mapTypeReference)
+        return responseToObj(response, objectMapTypeReference)
     }
 }
 
