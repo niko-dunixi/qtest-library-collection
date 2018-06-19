@@ -30,6 +30,8 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
 
     fun userClient(): UserClient = UserClient(okHttpClient, host)
 
+    fun fieldClient(projectId: Long): FieldClient = FieldClient(okHttpClient, host, projectId)
+
     /**
      * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
      */
@@ -331,6 +333,19 @@ class TestRunClient(private val okHttpClient: OkHttpClient, private val host: St
                 .build()
         val response = okHttpClient.newCall(request).execute()
         return responseToObj(response, objectMapTypeReference)
+    }
+}
+
+class FieldClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    fun fields(fieldParent: FieldParent): List<Field> {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/settings/${fieldParent.value}/fields")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val listOfFieldsTypeReference = object : TypeReference<List<Field>>() {}
+        return responseToObj(response, listOfFieldsTypeReference)
     }
 }
 

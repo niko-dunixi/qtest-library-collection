@@ -18,6 +18,10 @@ enum class TestRunParent(val value: String) {
     ROOT("root"), RELEASE("release"), TEST_CYCLE("test-cycle"), TEST_SUITE("test-suite")
 }
 
+enum class FieldParent(val value: String) {
+    RELEASE("release"), BUILD("build"), REQUIREMENT("requirement"), TEST_CASE("test-cases"), DEFECT("defect"), TEST_SUITE("test-suite"), TEST_RUN("test-run")
+}
+
 data class TestResult(
         val status: String,
         @JsonProperty("exe_start_date")

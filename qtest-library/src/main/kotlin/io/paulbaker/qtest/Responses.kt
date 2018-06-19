@@ -121,3 +121,29 @@ data class Requirement(
         @JsonProperty("last_modified_date")
         val lastModifiedDate: LocalDateTime
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Field(
+        val id: Long,
+        @JsonProperty("label")
+        val name: String,
+        val required: Boolean,
+        @JsonProperty("allowed_values")
+        val options: List<FieldOption>?,
+        @JsonProperty("is_active")
+        val active: Boolean,
+        @JsonProperty("searchable")
+        val searchable: Boolean
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class FieldOption(
+        @JsonProperty("value")
+        val id: Long,
+        val label: String,
+        @JsonProperty("is_active")
+        val active: Boolean,
+        @JsonProperty("is_default")
+        val default: Boolean,
+        val color: String?
+)
