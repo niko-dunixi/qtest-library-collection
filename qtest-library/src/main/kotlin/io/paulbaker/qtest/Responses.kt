@@ -108,6 +108,23 @@ data class TestRun(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class TestCase(
+        val id: Long,
+        @JsonProperty("parent_id")
+        val parentId: Long,
+        val name: String,
+        val pid: String,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
+        @JsonProperty("created_date")
+        val createdDate: LocalDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
+        @JsonProperty("last_modified_date")
+        val lastModifiedDate: LocalDateTime,
+        @JsonProperty("web_url")
+        val url: URL
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Requirement(
         val id: Long,
         @JsonProperty("parent_id")
