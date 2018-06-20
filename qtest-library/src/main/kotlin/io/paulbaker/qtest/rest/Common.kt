@@ -21,11 +21,11 @@ val nullableObjectMapTypeReference = object : TypeReference<Map<String, Any?>>()
 
 typealias Item = Pair<String, Any>
 
-fun jsonOf(vararg items: Item): String {
-    val mapOfItems = HashMap<String, Any>()
-    mapOfItems.putAll(items)
-    return jsonOf(mapOfItems)
-}
+//fun jsonOf(vararg items: Item): String {
+//    val mapOfItems = HashMap<String, Any>()
+//    mapOfItems.putAll(items)
+//    return jsonOf(mapOfItems)
+//}
 
 fun jsonOf(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
 

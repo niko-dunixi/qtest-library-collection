@@ -7,6 +7,7 @@ import io.paulbaker.qtest.rest.*
 import okhttp3.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 const val SENDING_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.000'Z'"
 
@@ -105,11 +106,12 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
      * @see <a href="https://api.qasymphony.com/#/project/createProject">qTest API</a>
      */
     fun create(name: String, description: String = ""): Project {
-        val content = jsonOf(
-                Item("name", name),
-                Item("start_date", getCurrentTimestamp()),
-                Item("description", description)
-        )
+        val map = HashMap<String, Any>()
+        map["item"] = name
+        map["start_date"] = getCurrentTimestamp()
+        map["description"] = description
+
+        val content = jsonOf(map)
         val request = Request.Builder()
                 .url("$host/api/v3/projects")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -193,7 +195,7 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
      * @see <a href="https://api.qasymphony.com/#/release/create2">qTest API</a>
      */
     fun create(name: String): Release {
-        val content = jsonOf(Item("name", name))
+        val content = jsonOf(mapOf(Item("name", name)))
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -349,6 +351,26 @@ class FieldClient(private val okHttpClient: OkHttpClient, private val host: Stri
     }
 }
 
+class SearchClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    fun search(searchTarget: SearchTarget, query: String) {
+        val map = HashMap<String, Any>()
+        map["object_type"] = searchTarget.value
+        map["fields"] = listOf("*")
+        map["query"] = query
+
+        val jsonBody = jsonOf(map)
+
+        val requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody)
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/search")
+                .post(requestBody)
+                .build()
+
+        val response = okHttpClient.newCall(request).execute()
+        
+    }
+}
 
 private fun <T> responseToObj(response: Response, type: Class<T>): T {
     val string = response.body()!!.string()

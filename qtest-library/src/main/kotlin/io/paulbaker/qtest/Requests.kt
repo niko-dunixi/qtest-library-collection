@@ -22,6 +22,10 @@ enum class FieldParent(val value: String) {
     RELEASE("release"), BUILD("build"), REQUIREMENT("requirement"), TEST_CASE("test-cases"), DEFECT("defect"), TEST_SUITE("test-suite"), TEST_RUN("test-run")
 }
 
+enum class SearchTarget(val value: String) {
+    REQUIREMENT("requirement"), TEST_CASE("test-cases"), TEST_RUN("test-run"), DEFECT("defect")
+}
+
 data class TestResult(
         val status: String,
         @JsonProperty("exe_start_date")
