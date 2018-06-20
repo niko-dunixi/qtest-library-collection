@@ -362,14 +362,14 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
         var currentPage = 0
         val results = ArrayList<T>()
         do {
-            val searchItems = searchSinglePageResposne<T>(searchTarget, query, page = currentPage)
+            val searchItems = searchSinglePageResponse<T>(searchTarget, query, page = currentPage)
             results.addAll(searchItems)
             currentPage++
         } while (searchItems.isNotEmpty())
         return results
     }
 
-    private fun <T> searchSinglePageResposne(searchTarget: SearchTarget, query: String, page: Int = 0, pageSize: Int = 20): List<T> {
+    private fun <T> searchSinglePageResponse(searchTarget: SearchTarget, query: String, page: Int = 0, pageSize: Int = 20): List<T> {
         val map = HashMap<String, Any>()
         map["object_type"] = searchTarget.value
         map["fields"] = listOf("*")
