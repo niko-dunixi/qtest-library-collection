@@ -34,6 +34,8 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
 
     fun fieldClient(projectId: Long): FieldClient = FieldClient(okHttpClient, host, projectId)
 
+    fun searchClient(projectId: Long): SearchClient = SearchClient(okHttpClient, host, projectId)
+
     /**
      * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
      */
