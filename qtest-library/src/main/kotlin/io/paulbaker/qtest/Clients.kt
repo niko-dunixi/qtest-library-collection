@@ -380,7 +380,7 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
 
         val requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody)
         val request = Request.Builder()
-                .url("$host/api/v3/projects/$projectId/searchSinglePageResposne?page=$page&pageSize=$pageSize")
+                .url("$host/api/v3/projects/$projectId/search?page=$page&pageSize=$pageSize")
                 .post(requestBody)
                 .build()
 
