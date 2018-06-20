@@ -12,13 +12,30 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 group 'io.paulbaker.qtest'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+
+// https://discuss.kotlinlang.org/t/how-to-attach-the-kotlin-library-sources/128/5
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
 
 dependencies {
     def okHttpVersion = '3.10.0'
