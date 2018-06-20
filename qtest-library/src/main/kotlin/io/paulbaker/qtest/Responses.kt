@@ -147,3 +147,12 @@ data class FieldOption(
         val default: Boolean,
         val color: String?
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PaginatedResponse<T>(
+        val page: Int,
+        @JsonProperty("page_size")
+        val pageSize: Int,
+        val total: Int,
+        val items: List<T>
+)
