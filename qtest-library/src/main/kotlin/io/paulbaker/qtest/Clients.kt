@@ -361,7 +361,7 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
     fun searchRequirement(query: String): List<Requirement> = searchIterativelyForAll(SearchTarget.REQUIREMENT, query)
 
     private fun <T> searchIterativelyForAll(searchTarget: SearchTarget, query: String): List<T> {
-        var currentPage = 0
+        var currentPage = 1
         val results = ArrayList<T>()
         do {
             val searchItems = searchSinglePageResponse<T>(searchTarget, query, page = currentPage)
