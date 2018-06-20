@@ -353,7 +353,7 @@ class FieldClient(private val okHttpClient: OkHttpClient, private val host: Stri
 
 class SearchClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
-    fun search(searchTarget: SearchTarget, query: String) {
+    fun search(searchTarget: SearchTarget, query: String): List<Map<String, Any>> {
         val map = HashMap<String, Any>()
         map["object_type"] = searchTarget.value
         map["fields"] = listOf("*")
@@ -368,7 +368,8 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
                 .build()
 
         val response = okHttpClient.newCall(request).execute()
-        
+        val paginatedResponseTypeReference = object : TypeReference<PaginatedResponse<Map<String, Any>>>() {}
+        return responseToObj(response, paginatedResponseTypeReference).items
     }
 }
 
