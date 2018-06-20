@@ -356,22 +356,28 @@ class FieldClient(private val okHttpClient: OkHttpClient, private val host: Stri
 
 class SearchClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
-    fun searchTestCases(query: String): List<TestCase> = searchIterativelyForAll(SearchTarget.TEST_CASE, query)
+    fun searchTestCases(query: String): List<TestCase> {
+        val paginatedResponseTypeReference = object : TypeReference<PaginatedResponse<TestCase>>() {}
+        return searchIterativelyForAll(SearchTarget.TEST_CASE, query, paginatedResponseTypeReference)
+    }
 
-    fun searchRequirement(query: String): List<Requirement> = searchIterativelyForAll(SearchTarget.REQUIREMENT, query)
+    fun searchRequirement(query: String): List<Requirement> {
+        val paginatedResponseTypeReference = object : TypeReference<PaginatedResponse<Requirement>>() {}
+        return searchIterativelyForAll(SearchTarget.REQUIREMENT, query, paginatedResponseTypeReference)
+    }
 
-    private fun <T> searchIterativelyForAll(searchTarget: SearchTarget, query: String): List<T> {
+    private fun <T> searchIterativelyForAll(searchTarget: SearchTarget, query: String, paginatedResponseTypeReference: TypeReference<PaginatedResponse<T>>): List<T> {
         var currentPage = 1
         val results = ArrayList<T>()
         do {
-            val searchItems = searchSinglePageResponse<T>(searchTarget, query, page = currentPage)
+            val searchItems = searchSinglePageResponse(searchTarget, query, paginatedResponseTypeReference, page = currentPage)
             results.addAll(searchItems)
             currentPage++
         } while (searchItems.isNotEmpty())
         return results
     }
 
-    private fun <T> searchSinglePageResponse(searchTarget: SearchTarget, query: String, page: Int = 0, pageSize: Int = 20): List<T> {
+    private fun <T> searchSinglePageResponse(searchTarget: SearchTarget, query: String, paginatedResponseTypeReference: TypeReference<PaginatedResponse<T>>, page: Int = 0, pageSize: Int = 20): List<T> {
         val map = HashMap<String, Any>()
         map["object_type"] = searchTarget.value
         map["fields"] = listOf("*")
@@ -385,7 +391,6 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
                 .build()
 
         val response = okHttpClient.newCall(request).execute()
-        val paginatedResponseTypeReference = object : TypeReference<PaginatedResponse<T>>() {}
         return responseToObj(response, paginatedResponseTypeReference).items
     }
 }
