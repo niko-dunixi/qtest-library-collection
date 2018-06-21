@@ -108,11 +108,22 @@ data class TestRun(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class Module(
+        val id: Long,
+        val name: String,
+        val pid: String,
+        @JsonProperty("parent_id")
+        val parentId: Long
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class TestCase(
         val id: Long,
         @JsonProperty("parent_id")
         val parentId: Long,
         val name: String,
+        val precondition: String,
+        val description: String,
         val pid: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
         @JsonProperty("created_date")
@@ -121,7 +132,21 @@ data class TestCase(
         @JsonProperty("last_modified_date")
         val lastModifiedDate: LocalDateTime,
         @JsonProperty("web_url")
-        val url: URL
+        val url: URL,
+        @JsonProperty("properties")
+        val properties: List<TestCaseProperties>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TestCaseProperties(
+        @JsonProperty("field_id")
+        val id: Long,
+        @JsonProperty("field_name")
+        val name: String,
+        @JsonProperty("field_value")
+        val value: String,
+        @JsonProperty("field_value_name")
+        val valueName: String?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

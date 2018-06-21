@@ -27,6 +27,19 @@ typealias Item = Pair<String, Any>
 //    return jsonOf(mapOfItems)
 //}
 
+fun queryParamsOf(items: Map<String, String>): String {
+    val stringBuilder = StringBuilder()
+    items.entries.forEach {
+        if (stringBuilder.isEmpty()) {
+            stringBuilder.append("?")
+        } else {
+            stringBuilder.append("&")
+        }
+        stringBuilder.append(it.key).append('=').append(it.value)
+    }
+    return stringBuilder.toString()
+}
+
 fun jsonOf(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
 
 fun jsonOf(item: Any): String = objectMapper.writeValueAsString(item)

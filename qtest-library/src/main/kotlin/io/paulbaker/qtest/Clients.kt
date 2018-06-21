@@ -24,6 +24,14 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
 
     fun projectClient(): ProjectClient = ProjectClient(okHttpClient, host)
 
+    fun fieldClient(projectId: Long): FieldClient = FieldClient(okHttpClient, host, projectId)
+
+    fun searchClient(projectId: Long): SearchClient = SearchClient(okHttpClient, host, projectId)
+
+    fun moduleClient(projectId: Long): ModuleClient = ModuleClient(okHttpClient, host, projectId)
+
+    fun testCaseClient(projectId: Long): TestCaseClient = TestCaseClient(okHttpClient, host, projectId)
+
     fun releaseClient(projectId: Long): ReleaseClient = ReleaseClient(okHttpClient, host, projectId)
 
     fun testCycleClient(projectId: Long): TestCycleClient = TestCycleClient(okHttpClient, host, projectId)
@@ -31,10 +39,6 @@ class QTestClient(private val qTestSubDomain: String, credentials: Pair<String, 
     fun testRunClient(projectId: Long): TestRunClient = TestRunClient(okHttpClient, host, projectId)
 
     fun userClient(): UserClient = UserClient(okHttpClient, host)
-
-    fun fieldClient(projectId: Long): FieldClient = FieldClient(okHttpClient, host, projectId)
-
-    fun searchClient(projectId: Long): SearchClient = SearchClient(okHttpClient, host, projectId)
 
     /**
      * @see <a href="https://api.qasymphony.com/#/login/postAccessToken">qTest API</a>
@@ -351,6 +355,93 @@ class FieldClient(private val okHttpClient: OkHttpClient, private val host: Stri
         val response = okHttpClient.newCall(request).execute()
         val listOfFieldsTypeReference = object : TypeReference<List<Field>>() {}
         return responseToObj(response, listOfFieldsTypeReference)
+    }
+}
+
+class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    fun fromId(testCaseId: Long): TestCase {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cases/$testCaseId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestCase::class.java)
+    }
+
+    fun create(moduleId: Long, name: String, description: String, precondition: String, properties: List<TestCaseField>): TestCase {
+        val hashMap = HashMap<String, Any>()
+        hashMap["name"] = name
+        hashMap["description"] = description
+        hashMap["precondition"] = precondition
+        hashMap["properties"] = properties
+        hashMap["parent_id"] = moduleId
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cases")
+                .post(RequestBody.create(MediaType.parse("application/json"), jsonOf(hashMap)))
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, TestCase::class.java)
+    }
+
+    data class TestCaseField(
+            @JsonProperty("field_id")
+            val id: Long,
+            @JsonProperty("field_value")
+            val value: String
+    )
+}
+
+class ModuleClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
+
+    fun modules(parentId: Long = 0, search: String = ""): List<Module> {
+        val queryItems = HashMap<String, String>()
+        if (parentId != 0L) {
+            queryItems["parentId"] = "$parentId"
+        }
+        if (search != "") {
+            queryItems["search"] = search
+        }
+        val queryParams = queryParamsOf(queryItems)
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/modules$queryParams")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val moduleListTypeReference = object : TypeReference<List<Module>>() {}
+        return responseToObj(response, moduleListTypeReference)
+    }
+
+    fun fromId(moduleId: Long): Module {
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/modules/$moduleId")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        return responseToObj(response, Module::class.java)
+    }
+
+    fun create(name: String, description: String, parentId: Long = 0): Module {
+        val queryItems = HashMap<String, String>()
+        if (parentId != 0L) {
+            queryItems["parentId"] = "$parentId"
+        }
+        val queryParams = queryParamsOf(queryItems)
+
+        val items = HashMap<String, Any>()
+        items["name"] = name
+        items["description"] = description
+        items["shared"] = false
+        val jsonString = jsonOf(items)
+
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/modules$queryParams")
+                .post(RequestBody.create(MediaType.parse("application/json"), jsonString))
+                .build()
+
+        val response = okHttpClient.newCall(request).execute()
+
+        return responseToObj(response, Module::class.java)
     }
 }
 
