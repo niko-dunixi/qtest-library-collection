@@ -369,16 +369,18 @@ class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: S
         return responseToObj(response, TestCase::class.java)
     }
 
-    fun create(moduleId: Long, name: String, description: String, precondition: String, properties: List<TestCaseField>): TestCase {
+    fun create(moduleId: Long, name: String, description: String, precondition: String, properties: List<TestCaseField>, testCaseSteps: List<TestCaseStep>): TestCase {
         val hashMap = HashMap<String, Any>()
         hashMap["name"] = name
         hashMap["description"] = description
         hashMap["precondition"] = precondition
         hashMap["properties"] = properties
         hashMap["parent_id"] = moduleId
+        hashMap["test_steps"] = testCaseSteps
+        val jsonString = jsonOf(hashMap)
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-cases")
-                .post(RequestBody.create(MediaType.parse("application/json"), jsonOf(hashMap)))
+                .post(RequestBody.create(MediaType.parse("application/json"), jsonString))
                 .build()
         val response = okHttpClient.newCall(request).execute()
         return responseToObj(response, TestCase::class.java)
@@ -389,6 +391,11 @@ class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: S
             val id: Long,
             @JsonProperty("field_value")
             val value: String
+    )
+
+    data class TestCaseStep(
+            val description: String,
+            val expected: String
     )
 }
 

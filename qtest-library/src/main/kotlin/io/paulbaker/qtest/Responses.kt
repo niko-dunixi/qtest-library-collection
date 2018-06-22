@@ -122,8 +122,8 @@ data class TestCase(
         @JsonProperty("parent_id")
         val parentId: Long,
         val name: String,
-        val precondition: String,
         val description: String,
+        val precondition: String,
         val pid: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = RECIEVING_DATE_PATTERN)
         @JsonProperty("created_date")
