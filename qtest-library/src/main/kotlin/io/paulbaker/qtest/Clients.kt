@@ -118,7 +118,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
         map["start_date"] = getCurrentTimestamp()
         map["description"] = description
 
-        val content = jsonOf(map)
+        val content = asJsonString(map)
         val request = Request.Builder()
                 .url("$host/api/v3/projects")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -202,7 +202,7 @@ class ReleaseClient(private val okHttpClient: OkHttpClient, private val host: St
      * @see <a href="https://api.qasymphony.com/#/release/create2">qTest API</a>
      */
     fun create(name: String): Release {
-        val content = jsonOf(mapOf(Item("name", name)))
+        val content = asJsonString(mapOf(Item("name", name)))
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/releases")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -255,7 +255,7 @@ class TestCycleClient(private val okHttpClient: OkHttpClient, private val host: 
      * @see <a href="https://api.qasymphony.com/#/test-cycle/createCycle">qTest API</a>
      */
     fun create(name: String, parentType: TestCycleParent = TestCycleParent.ROOT, parentId: Long = 0): TestCycle {
-        val content = jsonOf(Item("name", name))
+        val content = asJsonString(Item("name", name))
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-cycles?parentType=${parentType.value}&parentId=$parentId")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -313,7 +313,7 @@ class TestRunClient(private val okHttpClient: OkHttpClient, private val host: St
             @JsonProperty("test_case")
             val testCase = hashMapOf(Item("id", testCaseId))
         }
-        val content = jsonOf(obj)
+        val content = asJsonString(obj)
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-runs?parentType=${parentType.value}&parentId=$parentId")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -335,7 +335,7 @@ class TestRunClient(private val okHttpClient: OkHttpClient, private val host: St
     }
 
     fun submitTestResults(testRunId: Long, testResult: TestResult): Map<String, Any> {
-        val content = jsonOf(testResult)
+        val content = asJsonString(testResult)
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-runs/$testRunId/auto-test-logs?encodeNote=${testResult.noteIsHtml}")
                 .post(RequestBody.create(MediaType.parse("application/json"), content))
@@ -360,6 +360,31 @@ class FieldClient(private val okHttpClient: OkHttpClient, private val host: Stri
 
 class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
+    fun testCases(moduleId: Long): List<TestCase> {
+        var page = 1L
+        val allTestCases = ArrayList<TestCase>()
+        do {
+            val testCases = testCases(moduleId, page)
+            allTestCases.addAll(testCases)
+            page++
+        } while (testCases.isNotEmpty())
+        return allTestCases
+    }
+
+    private fun testCases(moduleId: Long, page: Long): List<TestCase> {
+        val queryParams = asQueryParamString(hashMapOf(
+                "parentId" to "$moduleId",
+                "page" to "$page"
+        ))
+        val request = Request.Builder()
+                .url("$host/api/v3/projects/$projectId/test-cases$queryParams")
+                .get()
+                .build()
+        val response = okHttpClient.newCall(request).execute()
+        val testCaseListTypeReference = object : TypeReference<List<TestCase>>() {}
+        return responseToObj(response, testCaseListTypeReference)
+    }
+
     fun fromId(testCaseId: Long): TestCase {
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-cases/$testCaseId")
@@ -377,7 +402,7 @@ class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: S
         hashMap["properties"] = properties
         hashMap["parent_id"] = moduleId
         hashMap["test_steps"] = testCaseSteps
-        val jsonString = jsonOf(hashMap)
+        val jsonString = asJsonString(hashMap)
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/test-cases")
                 .post(RequestBody.create(MediaType.parse("application/json"), jsonString))
@@ -401,15 +426,21 @@ class TestCaseClient(private val okHttpClient: OkHttpClient, private val host: S
 
 class ModuleClient(private val okHttpClient: OkHttpClient, private val host: String, private val projectId: Long) {
 
-    fun modules(parentId: Long = 0, search: String = ""): List<Module> {
+    fun modules(): List<Module> {
+        return modules(0L)
+    }
+
+    fun modules(parentId: Long = 0): List<Module> {
+//    fun modules(parentId: Long = 0, search: String = ""): List<Module> {
         val queryItems = HashMap<String, String>()
         if (parentId != 0L) {
             queryItems["parentId"] = "$parentId"
         }
-        if (search != "") {
-            queryItems["search"] = search
-        }
-        val queryParams = queryParamsOf(queryItems)
+//        if (search != "") {
+//            queryItems["search"] = search
+//        }
+        queryItems["expand"] = "descendants"
+        val queryParams = asQueryParamString(queryItems)
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/modules$queryParams")
                 .get()
@@ -433,13 +464,13 @@ class ModuleClient(private val okHttpClient: OkHttpClient, private val host: Str
         if (parentId != 0L) {
             queryItems["parentId"] = "$parentId"
         }
-        val queryParams = queryParamsOf(queryItems)
+        val queryParams = asQueryParamString(queryItems)
 
         val items = HashMap<String, Any>()
         items["name"] = name
         items["description"] = description
         items["shared"] = false
-        val jsonString = jsonOf(items)
+        val jsonString = asJsonString(items)
 
         val request = Request.Builder()
                 .url("$host/api/v3/projects/$projectId/modules$queryParams")
@@ -480,7 +511,7 @@ class SearchClient(private val okHttpClient: OkHttpClient, private val host: Str
         map["object_type"] = searchTarget.value
         map["fields"] = listOf("*")
         map["query"] = query
-        val jsonBody = jsonOf(map)
+        val jsonBody = asJsonString(map)
 
         val requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody)
         val request = Request.Builder()

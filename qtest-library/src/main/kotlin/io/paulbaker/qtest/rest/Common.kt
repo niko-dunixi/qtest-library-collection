@@ -21,13 +21,7 @@ val nullableObjectMapTypeReference = object : TypeReference<Map<String, Any?>>()
 
 typealias Item = Pair<String, Any>
 
-//fun jsonOf(vararg items: Item): String {
-//    val mapOfItems = HashMap<String, Any>()
-//    mapOfItems.putAll(items)
-//    return jsonOf(mapOfItems)
-//}
-
-fun queryParamsOf(items: Map<String, String>): String {
+fun asQueryParamString(items: Map<String, String>): String {
     val stringBuilder = StringBuilder()
     items.entries.forEach {
         if (stringBuilder.isEmpty()) {
@@ -40,6 +34,6 @@ fun queryParamsOf(items: Map<String, String>): String {
     return stringBuilder.toString()
 }
 
-fun jsonOf(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
+fun asJsonString(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
 
-fun jsonOf(item: Any): String = objectMapper.writeValueAsString(item)
+fun asJsonString(item: Any): String = objectMapper.writeValueAsString(item)

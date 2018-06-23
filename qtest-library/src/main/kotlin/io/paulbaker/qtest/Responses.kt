@@ -113,7 +113,8 @@ data class Module(
         val name: String,
         val pid: String,
         @JsonProperty("parent_id")
-        val parentId: Long
+        val parentId: Long,
+        val children: List<Module>?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
