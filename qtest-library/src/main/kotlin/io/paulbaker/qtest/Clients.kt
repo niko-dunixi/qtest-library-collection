@@ -128,7 +128,7 @@ class ProjectClient(private val okHttpClient: OkHttpClient, private val host: St
     }
 
 //    /**
-//     * The API doesn't have this endpoint. We'll need to spoof it the way the UI does.
+//     * The API doesn't have this endpoint. We'll need to spoof it to act same the way the UI does.
 //     */
 //    fun delete(projectId: Long): Boolean {
 //        val request = Request.Builder()
