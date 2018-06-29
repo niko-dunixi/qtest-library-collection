@@ -1,5 +1,11 @@
 version: 0.2
 
+env:
+  parameter-store:
+    QTEST_SUBDOMAIN: "/qtest-library-pipeline/testing/subdomain"
+    QTEST_USER: "/qtest-library-pipeline/testing/username"
+    QTEST_PASS: "/qtest-library-pipeline/testing/password"
+
 phases:
   pre_build:
     commands:
