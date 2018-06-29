@@ -42,7 +42,6 @@ dependencies {
     def jacksonVersion = '2.9.5'
     def junitVersion = '1.2.0'
     def jupiterVersion = '5.2.0'
-    def kotlintestVersion = '3.1.6'
 
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
@@ -54,7 +53,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Testing
     // JUnit5
-//    compile "org.junit.juptier:junit-platform-commons:$junitVersion"
     testCompile "org.junit.platform:junit-platform-console:$junitVersion"
     testCompile "org.junit.platform:junit-platform-console-standalone:$junitVersion"
     testCompile "org.junit.platform:junit-platform-engine:$junitVersion"
