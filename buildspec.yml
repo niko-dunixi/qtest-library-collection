@@ -2,7 +2,7 @@ version: 0.2
 
 phases:
   build:
-    comands:
+    commands:
       - ./gradlew build
       - ./gradlew test
   post_build:
