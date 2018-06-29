@@ -4,3 +4,8 @@ phases:
   build:
     comands:
       - ./gradlew build
+      - ./gradlew test
+  post_build:
+    commands:
+      - [ "${CODEBUILD_BUILD_SUCCEEDING}" -ne 1 ] && exit 1
+      - echo "Build suceeded!"
