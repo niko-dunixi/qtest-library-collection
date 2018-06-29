@@ -40,7 +40,7 @@ publishing {
 dependencies {
     def okHttpVersion = '3.10.0'
     def jacksonVersion = '2.9.5'
-//    def junitVersion = '1.2.0'
+    def junitVersion = '1.2.0'
     def jupiterVersion = '5.2.0'
     def kotlintestVersion = '3.1.6'
 
@@ -53,10 +53,19 @@ dependencies {
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jacksonVersion
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Testing
+    // JUnit5
+//    compile "org.junit.juptier:junit-platform-commons:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-console:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-console-standalone:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-engine:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-launcher:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-runner:$junitVersion"
+    testCompile "org.junit.platform:junit-platform-suite-api:$junitVersion"
+    // JUnit Jupiter
     compile "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
     compile "org.junit.jupiter:junit-jupiter-params:$jupiterVersion"
     compile "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
-//    testCompile "org.junit.platform:junit-platform-engine:$junitVersion"
+    // Hamcrest
     compile "org.hamcrest:java-hamcrest:2.0.0.0"
     compile "org.hamcrest:hamcrest-junit:2.0.0.0"
     compile 'com.github.npathai:hamcrest-optional:2.0.0'
