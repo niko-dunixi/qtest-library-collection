@@ -16,4 +16,4 @@ phases:
       - ./gradlew test
   post_build:
     commands:
-      - '[[ "${CODEBUILD_BUILD_SUCCEEDING}" -ne 1 ]] && exit 1 || echo "Build suceeded!"'
+      - '[ "${CODEBUILD_BUILD_SUCCEEDING}" -eq 1 ] && echo "Build suceeded!" || exit 1'
