@@ -34,6 +34,8 @@ fun asQueryParamString(items: Map<String, String>): String {
     return stringBuilder.toString()
 }
 
+fun asJsonString(item: Item) : String = asJsonString(mapOf(item))
+
 fun asJsonString(items: Map<String, Any>): String = objectMapper.writeValueAsString(items)
 
 fun asJsonString(item: Any): String = objectMapper.writeValueAsString(item)
