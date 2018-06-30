@@ -38,21 +38,22 @@ publishing {
 }
 
 dependencies {
-    def okHttpVersion = '3.10.0'
-    def jacksonVersion = '2.9.5'
-    def junitVersion = '1.2.0'
-    def jupiterVersion = '5.2.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
+    // OkHttp for rest
+    def okHttpVersion = '3.10.0'
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
+    // Serialization and Deserialization for POJOs
+    def jacksonVersion = '2.9.5'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: jacksonVersion
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jacksonVersion
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Testing
     // JUnit5
+    def junitVersion = '1.2.0'
     testCompile "org.junit.platform:junit-platform-console:$junitVersion"
     testCompile "org.junit.platform:junit-platform-console-standalone:$junitVersion"
     testCompile "org.junit.platform:junit-platform-engine:$junitVersion"
@@ -60,13 +61,14 @@ dependencies {
     testCompile "org.junit.platform:junit-platform-runner:$junitVersion"
     testCompile "org.junit.platform:junit-platform-suite-api:$junitVersion"
     // JUnit Jupiter
-    compile "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
-    compile "org.junit.jupiter:junit-jupiter-params:$jupiterVersion"
-    compile "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
+    def jupiterVersion = '5.2.0'
+    testCompile "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-params:$jupiterVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
     // Hamcrest
-    compile "org.hamcrest:java-hamcrest:2.0.0.0"
-    compile "org.hamcrest:hamcrest-junit:2.0.0.0"
-    compile 'com.github.npathai:hamcrest-optional:2.0.0'
+    testCompile "org.hamcrest:java-hamcrest:2.0.0.0"
+    testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
+    testCompile 'com.github.npathai:hamcrest-optional:2.0.0'
 //    testCompile("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 //    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
 //    compile "io.kotlintest:kotlintest-runner-junit5:$kotlintestVersion"
