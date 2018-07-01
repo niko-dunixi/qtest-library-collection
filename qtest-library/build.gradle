@@ -27,7 +27,7 @@ task sourceJar(type: Jar) {
 
 publishing {
     publications {
-        myMavenPublication(MavenPublication) {
+        qtestLibraryMavenPublication(MavenPublication) {
             from components.java
             artifact sourceJar {
                 classifier "sources"
