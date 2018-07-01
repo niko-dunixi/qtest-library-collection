@@ -27,11 +27,33 @@ task sourceJar(type: Jar) {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        myMavenPublication(MavenPublication) {
             from components.java
-
             artifact sourceJar {
                 classifier "sources"
+            }
+            pom {
+                name = "qtest-library"
+                description = "A Kotlin JVM library to interact with QASymphony's QTest REST Api"
+                url = "https://github.com/paul-nelson-baker/qtest-library-collection"
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                    developers {
+                        developer {
+                            id = "paulbaker"
+                            name = "Paul Nelson Baker"
+                            email = "paul.nelson.baker@gmail.com"
+                        }
+                    }
+                    scm {
+                        connection = "git@github.com:paul-nelson-baker/qtest-library-collection.git"
+                        developerConnection = "git@github.com:paul-nelson-baker/qtest-library-collection.git"
+                        url = "https://github.com/paul-nelson-baker/qtest-library-collection"
+                    }
+                }
             }
         }
     }
